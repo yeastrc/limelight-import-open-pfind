@@ -162,6 +162,10 @@ public class PFindResultsReader {
                     int position = Integer.parseInt(fields[0]);
                     BigDecimal modMass = modLookup.getModByName(fields[1]);
 
+                    if( mods.containsKey(position) ) {
+                        modMass = modMass.add(mods.get(position));
+                    }
+
                     mods.put(position, modMass);
                 }
             }
