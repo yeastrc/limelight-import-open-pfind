@@ -38,8 +38,8 @@ public class ModListReader {
 
                 fields = fields[1].split("\\s+");
 
-                if(fields.length != 5) {
-                    throw new Exception("Got unexpected number of fields on line: " + line );
+                if(fields.length < 5) {
+                    throw new Exception("Expected at least 5 fields, got " + fields.length + ": " + line );
                 }
 
                 BigDecimal mass = new BigDecimal(fields[2]);
