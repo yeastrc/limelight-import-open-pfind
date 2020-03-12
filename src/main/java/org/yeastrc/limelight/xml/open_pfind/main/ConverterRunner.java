@@ -19,9 +19,10 @@
 package org.yeastrc.limelight.xml.open_pfind.main;
 
 import org.yeastrc.limelight.xml.open_pfind.builder.XMLBuilder;
-import org.yeastrc.limelight.xml.open_pfind.constants.CruxConstants;
 import org.yeastrc.limelight.xml.open_pfind.objects.*;
 import org.yeastrc.limelight.xml.open_pfind.reader.*;
+
+import java.io.File;
 
 public class ConverterRunner {
 
@@ -31,28 +32,12 @@ public class ConverterRunner {
 	
 	public void convertOpenPfindToLimelightXML(ConversionParameters conversionParameters ) throws Throwable {
 
-
-		System.err.print( "\nReading Percolator XML data into memory..." );
-		PFindResults percResults = PercolatorResultsReader.getPercolatorResults( percolatorXMLFile );
-		System.err.println( " Found " + percResults.getReportedPeptideResults().size() + " peptides. " );
-
-
-		System.err.print( "Reading pepXML file..." );
-		PFindResults PFindResults = TidePepXMLResultsParser.getTideResults( pepXMLFile );
-		System.err.println( " Found " + PFindResults.getPeptidePSMMap().size() + " peptides. " );
-
-		System.err.println( "Verifying all percolator results have comet results..." );
-		TidePercolatorValidator.validateData(PFindResults, percResults );
+		System.err.print( "\nLoading pFind results into memory..." );
+		PFindResults results = PFindResultsReader.getPFindResults( conversionParameters.getOpenPfindOutputDirectory() );
+		System.err.println( " Found " + results.getPeptidePSMMap().keySet().size() + " distinct peptides..." );
 
 		System.err.print( "\nWriting out XML..." );
-		(new XMLBuilder()).buildAndSaveXML(
-				conversionParameters,
-				PFindResults,
-				percResults,
-				tideLogFile,
-				percolatorLogFile
-				);
-
+		(new XMLBuilder()).buildAndSaveXML(conversionParameters, results);
 		System.err.println( " Done." );
 
 	}

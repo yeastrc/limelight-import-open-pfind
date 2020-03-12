@@ -36,8 +36,8 @@ public class ReportedPeptideUtils {
         if(mods.containsKey(0)) {
             BigDecimal mass = mods.get(0);
 
-            sb.append( "[" );
-            sb.append( mass.setScale( 0, RoundingMode.HALF_UP ).toString() );
+            sb.append( "n[" );
+            sb.append( mass.setScale( 2, RoundingMode.HALF_UP ).toString() );
             sb.append( "]" );
         }
 
@@ -50,18 +50,18 @@ public class ReportedPeptideUtils {
                 BigDecimal mass = mods.get( i + 1 );
 
                 sb.append( "[" );
-                sb.append( mass.setScale( 0, RoundingMode.HALF_UP ).toString() );
+                sb.append( mass.setScale( 2, RoundingMode.HALF_UP ).toString() );
                 sb.append( "]" );
 
             }
         }
 
         // c-terminal mod
-        if(mods.containsKey(peptideSequence.length())) {
-            BigDecimal mass = mods.get(peptideSequence.length());
+        if(mods.containsKey(peptideSequence.length() + 1)) {
+            BigDecimal mass = mods.get(peptideSequence.length() + 1);
 
-            sb.append( "[" );
-            sb.append( mass.setScale( 0, RoundingMode.HALF_UP ).toString() );
+            sb.append( "c[" );
+            sb.append( mass.setScale( 2, RoundingMode.HALF_UP ).toString() );
             sb.append( "]" );
         }
 

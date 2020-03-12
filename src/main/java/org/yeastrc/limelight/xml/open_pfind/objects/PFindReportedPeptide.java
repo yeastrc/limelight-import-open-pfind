@@ -33,6 +33,7 @@ public class PFindReportedPeptide {
 	private String reportedPeptideString;
 	private String nakedPeptide;
 	private Map<Integer, BigDecimal> mods;
+	private Collection<String> proteinMatches;
 
 	public Collection<String> getProteinMatches() {
 		return proteinMatches;
@@ -78,9 +79,5 @@ public class PFindReportedPeptide {
 	public void setMods(Map<Integer, BigDecimal> mods) {
 		this.mods = mods;
 	}
-
-	public Collection<String> proteinMatches;
-
-
 
 }

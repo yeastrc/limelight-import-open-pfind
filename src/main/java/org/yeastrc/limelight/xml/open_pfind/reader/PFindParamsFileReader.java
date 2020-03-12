@@ -54,7 +54,7 @@ public class PFindParamsFileReader {
 
         INIConfiguration config = new INIConfiguration();
         config.setExpressionEngine( INIUtils.EXPRESSION_ENGINE );
-        config.read( new FileReader( pFindOutputDirectory ) );
+        config.read( new FileReader( getParamsFile(pFindOutputDirectory) ) );
 
         return config.getString( "Version/pFind_Version" );
     }
@@ -65,7 +65,7 @@ public class PFindParamsFileReader {
 
         INIConfiguration config = new INIConfiguration();
         config.setExpressionEngine( INIUtils.EXPRESSION_ENGINE );
-        config.read( new FileReader( pFindOutputDirectory ) );
+        config.read( new FileReader( getParamsFile(pFindOutputDirectory) ) );
 
         String fullModString =  config.getString( "param/selectmod" );
         if(fullModString != null) {
@@ -88,7 +88,7 @@ public class PFindParamsFileReader {
 
         INIConfiguration config = new INIConfiguration();
         config.setExpressionEngine( INIUtils.EXPRESSION_ENGINE );
-        config.read( new FileReader( pFindOutputDirectory ) );
+        config.read( new FileReader( getParamsFile(pFindOutputDirectory) ) );
 
         String fullModString =  config.getString( "param/fixmod" );
         if(fullModString != null) {

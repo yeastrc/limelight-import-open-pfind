@@ -41,7 +41,7 @@ public class PSMAnnotationTypes {
 
 	
 	
-	public static List<FilterablePsmAnnotationType> getFilterablePsmAnnotationTypes( String programName, Boolean wasSpComputed ) {
+	public static List<FilterablePsmAnnotationType> getFilterablePsmAnnotationTypes() {
 		List<FilterablePsmAnnotationType> types = new ArrayList<FilterablePsmAnnotationType>();
 
 		{

@@ -11,14 +11,14 @@ import org.yeastrc.limelight.xml.open_pfind.utils.ReportedPeptideUtils;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class PFindResultsReader {
 
     public static PFindResults getPFindResults(File pFindOutputDirectory) throws Throwable {
+
+        // map of all possible mods
+        ModLookup modLookup = new ModLookup(pFindOutputDirectory);
 
         // get dynamic mods
         Collection<String> dynamicMods = PFindParamsFileReader.getDynamicModStrings(pFindOutputDirectory);
@@ -27,20 +27,20 @@ public class PFindResultsReader {
         Collection<String> staticMods = PFindParamsFileReader.getStaticModStrings(pFindOutputDirectory);
 
         // get the results
-        Map<PFindReportedPeptide, Collection<PFindPSM>> psmMap = getPFindPSMs( pFindOutputDirectory, dynamicMods, staticMods );
+        Map<PFindReportedPeptide, Collection<PFindPSM>> psmMap = getPFindPSMs( pFindOutputDirectory, dynamicMods, staticMods, modLookup );
 
         PFindResults results = new PFindResults();
         results.setPeptidePSMMap( psmMap );
         results.setDynamicMods( dynamicMods );
         results.setStaticMods( staticMods );
+        results.setModLookup( modLookup );
 
         return results;
     }
 
-    public static Map<PFindReportedPeptide, Collection<PFindPSM>> getPFindPSMs(File pFindOutputDirectory, Collection<String> dynamicMod, Collection<String> staticMods) throws IOException {
+    public static Map<PFindReportedPeptide, Collection<PFindPSM>> getPFindPSMs(File pFindOutputDirectory, Collection<String> dynamicMod, Collection<String> staticMods, ModLookup modLookup) throws Exception {
 
         File resultsFile = PFindUtils.getSpectraResultsFile( pFindOutputDirectory );
-        ModLookup modLookup = new ModLookup(pFindOutputDirectory);
         Map<PFindReportedPeptide, Collection<PFindPSM>> results = new HashMap<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(resultsFile))) {
@@ -49,9 +49,15 @@ public class PFindResultsReader {
             br.readLine();
 
             for (String line = br.readLine(); line != null; line = br.readLine()) {
+
                 String[] fields = line.split("\t");
 
-                assert fields.length == 19 : "Got invalid number of fields for PSM on line: " + line;
+                if(fields[4].equals( "1024" ) || fields[4].equals( "512" )) {    // weird lines with no peptide and a q-value of 1024 or 512... skip
+                    continue;
+                }
+
+                if( fields.length != 19 )
+                    throw new Exception("Got invalid number of fields for PSM on line: " + line);
 
                 // NO DECOYS!
                 if(fields[15].equals( "decoy"))
@@ -68,7 +74,7 @@ public class PFindResultsReader {
                 BigDecimal finalScore = new BigDecimal(fields[9]);
                 String modsList = fields[10];
                 int specificity = Integer.parseInt(fields[11]);
-                //String proteinList = fields[12];
+                String proteinList = fields[12];
                 BigDecimal avgFragMassShift = new BigDecimal(fields[17]);
 
                 Map<Integer, BigDecimal> dynamicMods = getModsFromModsList(modsList, modLookup, staticMods);
@@ -78,6 +84,9 @@ public class PFindResultsReader {
                 if(!results.containsKey(reportedPeptide)) {
                     results.put(reportedPeptide, new HashSet<>());
                 }
+
+                // the collection of protein matches
+                Collection<String> proteinMatches = getProteinsFromList(proteinList);
 
                 PFindPSM psm = new PFindPSM();
                 psm.setAvgFragMassShift( avgFragMassShift );
@@ -91,12 +100,33 @@ public class PFindResultsReader {
                 psm.setRawScore( rawScore );
                 psm.setScanNumber( scanNumber );
                 psm.setSpecificity( specificity );
+                psm.setProteinNames( proteinMatches );
 
                 results.get(reportedPeptide).add( psm );
+
+                // this will ensure the reported peptide in the map has these protein matches
+                reportedPeptide.setProteinMatches( proteinMatches );
             }
         }
 
         return results;
+    }
+
+    /**
+     * Expand list of protein names into a collection of names
+     *
+     * @param proteinList
+     * @return
+     */
+    private static Collection<String> getProteinsFromList(String proteinList) {
+        // in the form of: sp|P02768|ALBU_HUMAN/tr|A0A087WWT3|A0A087WWT3_HUMAN/tr|A0A0C4DGB6|A0A0C4DGB6_HUMAN/tr|B7WNR0|B7WNR0_HUMAN/tr|C9JKR2|C9JKR2_HUMAN/tr|D6RHD5|D6RHD5_HUMAN/tr|H0YA55|H0YA55_HUMAN/sp|P02768-2|ALBU_HUMAN/sp|P02768-3|ALBU_HUMAN/
+        // split on /
+
+        // remove trailing /
+        proteinList = StringUtils.chomp(proteinList);
+
+        String[] proteinNames = proteinList.split("/" );
+        return Arrays.asList(proteinNames);
     }
 
     /**

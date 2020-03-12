@@ -56,7 +56,11 @@ public class MatchedProteinsBuilder {
 		{
 			Collection<String> proteinNamesNotFoundInFasta = getProteinNamesNotFoundInFasta(proteinNames, proteins);
 			if (proteinNamesNotFoundInFasta.size() > 0) {
-				throw new Exception("The following protein names were not found in FASTA: " + String.join(", ", proteinNamesNotFoundInFasta));
+//				System.err.println("\n\nWARNING: The following protein names were not found in FASTA: " + String.join(", ", proteinNamesNotFoundInFasta) + "\n\n");
+
+				for(String p : proteinNamesNotFoundInFasta) {
+					proteinNames.remove(p);
+				}
 			}
 		}
 

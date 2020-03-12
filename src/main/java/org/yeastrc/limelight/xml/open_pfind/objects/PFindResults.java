@@ -9,6 +9,7 @@ public class PFindResults {
 	private Map<PFindReportedPeptide, Collection<PFindPSM>> peptidePSMMap;
 	private Collection<String> staticMods;
 	private Collection<String> dynamicMods;
+	private ModLookup modLookup;
 
 	/**
 	 * @return the peptidePSMMap
@@ -37,5 +38,13 @@ public class PFindResults {
 
 	public void setDynamicMods(Collection<String> dynamicMods) {
 		this.dynamicMods = dynamicMods;
+	}
+
+	public ModLookup getModLookup() {
+		return modLookup;
+	}
+
+	public void setModLookup(ModLookup modLookup) {
+		this.modLookup = modLookup;
 	}
 }

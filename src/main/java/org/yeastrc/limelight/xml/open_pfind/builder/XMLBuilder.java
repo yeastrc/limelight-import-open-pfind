@@ -1,7 +1,20 @@
 package org.yeastrc.limelight.xml.open_pfind.builder;
 
+import org.yeastrc.limelight.limelight_import.api.xml_dto.*;
+import org.yeastrc.limelight.limelight_import.api.xml_dto.SearchProgram.PsmAnnotationTypes;
+import org.yeastrc.limelight.limelight_import.create_import_file_from_java_objects.main.CreateImportFileFromJavaObjectsMain;
+import org.yeastrc.limelight.xml.open_pfind.annotation.PSMAnnotationTypeSortOrder;
+import org.yeastrc.limelight.xml.open_pfind.annotation.PSMAnnotationTypes;
+import org.yeastrc.limelight.xml.open_pfind.annotation.PSMDefaultVisibleAnnotationTypes;
+import org.yeastrc.limelight.xml.open_pfind.constants.Constants;
+import org.yeastrc.limelight.xml.open_pfind.objects.ConversionParameters;
+import org.yeastrc.limelight.xml.open_pfind.objects.PFindPSM;
+import org.yeastrc.limelight.xml.open_pfind.objects.PFindReportedPeptide;
+import org.yeastrc.limelight.xml.open_pfind.objects.PFindResults;
+import org.yeastrc.limelight.xml.open_pfind.reader.PFindParamsFileReader;
+import org.yeastrc.limelight.xml.open_pfind.utils.ModUtils;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -9,31 +22,11 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.Map;
 
-import org.yeastrc.limelight.limelight_import.api.xml_dto.*;
-import org.yeastrc.limelight.limelight_import.api.xml_dto.ReportedPeptide.ReportedPeptideAnnotations;
-import org.yeastrc.limelight.limelight_import.api.xml_dto.SearchProgram.PsmAnnotationTypes;
-import org.yeastrc.limelight.limelight_import.api.xml_dto.SearchProgram.ReportedPeptideAnnotationTypes;
-import org.yeastrc.limelight.limelight_import.create_import_file_from_java_objects.main.CreateImportFileFromJavaObjectsMain;
-import org.yeastrc.limelight.xml.open_pfind.annotation.PSMAnnotationTypeSortOrder;
-import org.yeastrc.limelight.xml.open_pfind.annotation.PSMAnnotationTypes;
-import org.yeastrc.limelight.xml.open_pfind.annotation.PSMDefaultVisibleAnnotationTypes;
-import org.yeastrc.limelight.xml.open_pfind.annotation.PeptideAnnotationTypeSortOrder;
-import org.yeastrc.limelight.xml.open_pfind.annotation.PeptideAnnotationTypes;
-import org.yeastrc.limelight.xml.open_pfind.annotation.PeptideDefaultVisibleAnnotationTypes;
-import org.yeastrc.limelight.xml.open_pfind.constants.Constants;
-import org.yeastrc.limelight.xml.open_pfind.objects.*;
-import org.yeastrc.limelight.xml.open_pfind.reader.PercolatorLogFileParser;
-import org.yeastrc.limelight.xml.open_pfind.utils.CometParsingUtils;
-
 public class XMLBuilder {
 
 	public void buildAndSaveXML( ConversionParameters conversionParameters,
-			                     PFindResults tideResults,
-			                     PFindResults PFindResults,
-								 File tideLogFile,
-								 File percolatorLogFile )
+			                     PFindResults results)
     throws Exception {
-
 
 		LimelightInput limelightInputRoot = new LimelightInput();
 
@@ -52,71 +45,25 @@ public class XMLBuilder {
 			SearchProgram searchProgram = new SearchProgram();
 			searchPrograms.getSearchProgram().add( searchProgram );
 
-			searchProgram.setName( Constants.PROGRAM_NAME_CRUX );
-			searchProgram.setDisplayName( Constants.PROGRAM_NAME_CRUX );
-			searchProgram.setVersion(PercolatorLogFileParser.getCruxVersionFromLogFile( new FileInputStream( percolatorLogFile ) ) );
-		}
+			searchProgram.setName( Constants.PROGRAM_NAME_PFIND );
+			searchProgram.setDisplayName( Constants.PROGRAM_NAME_PFIND );
+			searchProgram.setVersion(PFindParamsFileReader.getVersion(conversionParameters.getOpenPfindOutputDirectory()));
 
-		{
-			SearchProgram searchProgram = new SearchProgram();
-			searchPrograms.getSearchProgram().add( searchProgram );
-				
-			searchProgram.setName( Constants.PROGRAM_NAME_TIDE );
-			searchProgram.setDisplayName( Constants.PROGRAM_NAME_TIDE );
-			searchProgram.setVersion(PercolatorLogFileParser.getCruxVersionFromLogFile( new FileInputStream( percolatorLogFile ) ) );
-			
-			
+
 			//
 			// Define the annotation types present in tide data
 			//
 			PsmAnnotationTypes psmAnnotationTypes = new PsmAnnotationTypes();
 			searchProgram.setPsmAnnotationTypes( psmAnnotationTypes );
-			
+
 			FilterablePsmAnnotationTypes filterablePsmAnnotationTypes = new FilterablePsmAnnotationTypes();
 			psmAnnotationTypes.setFilterablePsmAnnotationTypes( filterablePsmAnnotationTypes );
-			
-			for( FilterablePsmAnnotationType annoType : PSMAnnotationTypes.getFilterablePsmAnnotationTypes( Constants.PROGRAM_NAME_TIDE, tideResults.isComputeSp() ) ) {
+
+			for( FilterablePsmAnnotationType annoType : PSMAnnotationTypes.getFilterablePsmAnnotationTypes() ) {
 				filterablePsmAnnotationTypes.getFilterablePsmAnnotationType().add( annoType );
 			}
-			
 		}
 
-		{
-			SearchProgram searchProgram = new SearchProgram();
-			searchPrograms.getSearchProgram().add( searchProgram );
-				
-			searchProgram.setName( Constants.PROGRAM_NAME_PERCOLATOR );
-			searchProgram.setDisplayName( Constants.PROGRAM_NAME_PERCOLATOR );
-			searchProgram.setVersion( PFindResults.getPercolatorVersion() );
-			
-			
-			//
-			// Define the annotation types present in percolator data
-			//
-			PsmAnnotationTypes psmAnnotationTypes = new PsmAnnotationTypes();
-			searchProgram.setPsmAnnotationTypes( psmAnnotationTypes );
-			
-			FilterablePsmAnnotationTypes filterablePsmAnnotationTypes = new FilterablePsmAnnotationTypes();
-			psmAnnotationTypes.setFilterablePsmAnnotationTypes( filterablePsmAnnotationTypes );
-			
-			for( FilterablePsmAnnotationType annoType : PSMAnnotationTypes.getFilterablePsmAnnotationTypes( Constants.PROGRAM_NAME_PERCOLATOR, null ) ) {
-				filterablePsmAnnotationTypes.getFilterablePsmAnnotationType().add( annoType );
-			}
-			
-			
-			ReportedPeptideAnnotationTypes reportedPeptideAnnotationTypes = new ReportedPeptideAnnotationTypes();
-			searchProgram.setReportedPeptideAnnotationTypes( reportedPeptideAnnotationTypes );
-
-			FilterableReportedPeptideAnnotationTypes filterableReportedPeptideAnnotationTypes = new FilterableReportedPeptideAnnotationTypes();
-			reportedPeptideAnnotationTypes.setFilterableReportedPeptideAnnotationTypes( filterableReportedPeptideAnnotationTypes );
-			
-			for( FilterableReportedPeptideAnnotationType annoType : PeptideAnnotationTypes.getFilterablePeptideAnnotationTypes( Constants.PROGRAM_NAME_PERCOLATOR ) ) {
-				filterableReportedPeptideAnnotationTypes.getFilterableReportedPeptideAnnotationType().add( annoType );
-			}
-		}
-		
-		
-		
 		//
 		// Define which annotation types are visible by default
 		//
@@ -128,13 +75,6 @@ public class XMLBuilder {
 
 		for( SearchAnnotation sa : PSMDefaultVisibleAnnotationTypes.getDefaultVisibleAnnotationTypes() ) {
 			xmlVisiblePsmAnnotations.getSearchAnnotation().add( sa );
-		}
-		
-		VisibleReportedPeptideAnnotations xmlVisibleReportedPeptideAnnotations = new VisibleReportedPeptideAnnotations();
-		xmlDefaultVisibleAnnotations.setVisibleReportedPeptideAnnotations( xmlVisibleReportedPeptideAnnotations );
-
-		for( SearchAnnotation sa : PeptideDefaultVisibleAnnotationTypes.getDefaultVisibleAnnotationTypes() ) {
-			xmlVisibleReportedPeptideAnnotations.getSearchAnnotation().add( sa );
 		}
 		
 		//
@@ -150,33 +90,24 @@ public class XMLBuilder {
 			xmlPsmAnnotationSortOrder.getSearchAnnotation().add( xmlSearchAnnotation );
 		}
 		
-		ReportedPeptideAnnotationSortOrder xmlReportedPeptideAnnotationSortOrder = new ReportedPeptideAnnotationSortOrder();
-		xmlAnnotationSortOrder.setReportedPeptideAnnotationSortOrder( xmlReportedPeptideAnnotationSortOrder );
-		
-		for( SearchAnnotation xmlSearchAnnotation : PeptideAnnotationTypeSortOrder.getPeptideAnnotationTypeSortOrder() ) {
-			xmlReportedPeptideAnnotationSortOrder.getSearchAnnotation().add( xmlSearchAnnotation );
-		}
-		
 		//
 		// Define the static mods
 		//
-		if( tideResults.getStaticMods() != null && tideResults.getStaticMods().keySet().size() > 0 ) {
+		Map<String, BigDecimal> staticMods = ModUtils.getStaticMods(conversionParameters.getOpenPfindOutputDirectory(), results.getModLookup() );
+		if(staticMods.size() > 0) {
+
 			StaticModifications smods = new StaticModifications();
 			limelightInputRoot.setStaticModifications( smods );
-			
-			for( BigDecimal totalMass : tideResults.getStaticMods().keySet() ) {
-				for( String residue : tideResults.getStaticMods().get(totalMass).keySet()) {
-					BigDecimal massDiff = tideResults.getStaticMods().get(totalMass).get(residue);
 
-					StaticModification xmlSmod = new StaticModification();
-					xmlSmod.setAminoAcid( residue );
-					xmlSmod.setMassChange( massDiff );
+			for( String residue : staticMods.keySet() ) {
 
-					smods.getStaticModification().add( xmlSmod );
-				}
+				StaticModification xmlSmod = new StaticModification();
+				xmlSmod.setAminoAcid( residue );
+				xmlSmod.setMassChange( staticMods.get(residue) );
+
+				smods.getStaticModification().add( xmlSmod );
 			}
 		}
-
 
 		//
 		// Build MatchedProteins section and get map of protein names to MatchedProtein ids
@@ -184,7 +115,7 @@ public class XMLBuilder {
 		Map<String, Integer> proteinNameIds = MatchedProteinsBuilder.getInstance().buildMatchedProteins(
 				limelightInputRoot,
 				conversionParameters.getFastaFilePath(),
-				tideResults.getPeptidePSMMap().keySet()
+				results.getPeptidePSMMap().keySet()
 		);
 
 
@@ -195,94 +126,56 @@ public class XMLBuilder {
 		limelightInputRoot.setReportedPeptides( reportedPeptides );
 		
 		// iterate over each distinct reported peptide
-		for( String percolatorReportedPeptide : PFindResults.getReportedPeptideResults().keySet() ) {
+		for( PFindReportedPeptide pFindReportedPeptide : results.getPeptidePSMMap().keySet() ) {
 
-			PercolatorPeptideData percolatorPeptideData = PFindResults.getReportedPeptideResults().get( percolatorReportedPeptide );
-			PFindReportedPeptide PFindReportedPeptide = CometParsingUtils.getTideReportedPeptideForString( percolatorReportedPeptide, tideResults);
-			
+			String reportedPeptideString = pFindReportedPeptide.getReportedPeptideString();
+
 			ReportedPeptide xmlReportedPeptide = new ReportedPeptide();
 			reportedPeptides.getReportedPeptide().add( xmlReportedPeptide );
 			
-			xmlReportedPeptide.setReportedPeptideString( PFindReportedPeptide.getReportedPeptideString() );
-			xmlReportedPeptide.setSequence( PFindReportedPeptide.getNakedPeptide() );
+			xmlReportedPeptide.setReportedPeptideString( reportedPeptideString );
+			xmlReportedPeptide.setSequence( pFindReportedPeptide.getNakedPeptide() );
 
 			MatchedProteinsForPeptide xProteinsForPeptide = new MatchedProteinsForPeptide();
 			xmlReportedPeptide.setMatchedProteinsForPeptide( xProteinsForPeptide );
 
 			// add in protein inference info
-			for( String proteinName : PFindReportedPeptide.getProteinMatches() ) {
+			int proteinCount = 0;
+			for( String proteinName : pFindReportedPeptide.getProteinMatches() ) {
 
-				int matchedProteinId = proteinNameIds.get( proteinName );
+				if(proteinNameIds.containsKey( proteinName ) ) {
+					proteinCount++;
+					int matchedProteinId = proteinNameIds.get(proteinName);
 
-				MatchedProteinForPeptide xProteinForPeptide = new MatchedProteinForPeptide();
-				xProteinsForPeptide.getMatchedProteinForPeptide().add( xProteinForPeptide );
+					MatchedProteinForPeptide xProteinForPeptide = new MatchedProteinForPeptide();
+					xProteinsForPeptide.getMatchedProteinForPeptide().add(xProteinForPeptide);
 
-				xProteinForPeptide.setId( BigInteger.valueOf( matchedProteinId ) );
+					xProteinForPeptide.setId(BigInteger.valueOf(matchedProteinId));
+				}
 			}
 
-			// add in the filterable peptide annotations (e.g., q-value)
-			ReportedPeptideAnnotations xmlReportedPeptideAnnotations = new ReportedPeptideAnnotations();
-			xmlReportedPeptide.setReportedPeptideAnnotations( xmlReportedPeptideAnnotations );
-			
-			FilterableReportedPeptideAnnotations xmlFilterableReportedPeptideAnnotations = new FilterableReportedPeptideAnnotations();
-			xmlReportedPeptideAnnotations.setFilterableReportedPeptideAnnotations( xmlFilterableReportedPeptideAnnotations );
-			
-			// handle q-value
-			{
-				FilterableReportedPeptideAnnotation xmlFilterableReportedPeptideAnnotation = new FilterableReportedPeptideAnnotation();
-				xmlFilterableReportedPeptideAnnotations.getFilterableReportedPeptideAnnotation().add( xmlFilterableReportedPeptideAnnotation );
-				
-				xmlFilterableReportedPeptideAnnotation.setAnnotationName( PeptideAnnotationTypes.PERCOLATOR_ANNOTATION_TYPE_QVALUE );
-				xmlFilterableReportedPeptideAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PERCOLATOR );
-				xmlFilterableReportedPeptideAnnotation.setValue( BigDecimal.valueOf( percolatorPeptideData.getPercolatorPeptideScores().getqValue()) );
+			if( proteinCount == 0) {
+				throw new Exception("Could not find a protein for peptide: " + pFindReportedPeptide );
 			}
-			// handle p-value
-			{
-				FilterableReportedPeptideAnnotation xmlFilterableReportedPeptideAnnotation = new FilterableReportedPeptideAnnotation();
-				xmlFilterableReportedPeptideAnnotations.getFilterableReportedPeptideAnnotation().add( xmlFilterableReportedPeptideAnnotation );
-				
-				xmlFilterableReportedPeptideAnnotation.setAnnotationName( PeptideAnnotationTypes.PERCOLATOR_ANNOTATION_TYPE_PVALUE );
-				xmlFilterableReportedPeptideAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PERCOLATOR );
-				xmlFilterableReportedPeptideAnnotation.setValue( BigDecimal.valueOf( percolatorPeptideData.getPercolatorPeptideScores().getpValue()) );
-			}
-			// handle pep
-			{
-				FilterableReportedPeptideAnnotation xmlFilterableReportedPeptideAnnotation = new FilterableReportedPeptideAnnotation();
-				xmlFilterableReportedPeptideAnnotations.getFilterableReportedPeptideAnnotation().add( xmlFilterableReportedPeptideAnnotation );
-				
-				xmlFilterableReportedPeptideAnnotation.setAnnotationName( PeptideAnnotationTypes.PERCOLATOR_ANNOTATION_TYPE_PEP );
-				xmlFilterableReportedPeptideAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PERCOLATOR );
-				xmlFilterableReportedPeptideAnnotation.setValue( BigDecimal.valueOf( percolatorPeptideData.getPercolatorPeptideScores().getPep()) );
-			}
-			// handle svm score
-			{
-				FilterableReportedPeptideAnnotation xmlFilterableReportedPeptideAnnotation = new FilterableReportedPeptideAnnotation();
-				xmlFilterableReportedPeptideAnnotations.getFilterableReportedPeptideAnnotation().add( xmlFilterableReportedPeptideAnnotation );
-				
-				xmlFilterableReportedPeptideAnnotation.setAnnotationName( PeptideAnnotationTypes.PERCOLATOR_ANNOTATION_TYPE_SVMSCORE );
-				xmlFilterableReportedPeptideAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PERCOLATOR );
-				xmlFilterableReportedPeptideAnnotation.setValue( BigDecimal.valueOf( percolatorPeptideData.getPercolatorPeptideScores().getSvmScore()) );
-			}
-			
-			
+
 			// add in the mods for this peptide
-			if( PFindReportedPeptide.getMods() != null && PFindReportedPeptide.getMods().keySet().size() > 0 ) {
+			if( pFindReportedPeptide.getMods() != null && pFindReportedPeptide.getMods().keySet().size() > 0 ) {
 					
 				PeptideModifications xmlModifications = new PeptideModifications();
 				xmlReportedPeptide.setPeptideModifications( xmlModifications );
 					
-				for( int position : PFindReportedPeptide.getMods().keySet() ) {
+				for( int position : pFindReportedPeptide.getMods().keySet() ) {
 
 					PeptideModification xmlModification = new PeptideModification();
 					xmlModifications.getPeptideModification().add( xmlModification );
 
-					xmlModification.setMass( PFindReportedPeptide.getMods().get( position ) );
+					xmlModification.setMass( pFindReportedPeptide.getMods().get( position ) );
 
-					if( CometParsingUtils.isNTerminalMod( PFindReportedPeptide.getNakedPeptide(), position ) ) {
+					if( position == 0) {
 
 						xmlModification.setIsNTerminal( true );
 
-					} else if( CometParsingUtils.isCTerminalMod( PFindReportedPeptide.getNakedPeptide(), position ) ) {
+					} else if( position == pFindReportedPeptide.getNakedPeptide().length() + 1 ) {
 
 						xmlModification.setIsCTerminal( true );
 
@@ -299,14 +192,12 @@ public class XMLBuilder {
 
 			// iterate over all PSMs for this reported peptide
 
-			for( int scanNumber : PFindResults.getReportedPeptideResults().get( percolatorReportedPeptide ).getPercolatorPSMs().keySet() ) {
-
-				PFindPSM psm = tideResults.getPeptidePSMMap().get(PFindReportedPeptide).get( scanNumber );
+			for( PFindPSM psm : results.getPeptidePSMMap().get(pFindReportedPeptide) ) {
 
 				Psm xmlPsm = new Psm();
 				xmlPsms.getPsm().add( xmlPsm );
 
-				xmlPsm.setScanNumber( new BigInteger( String.valueOf( scanNumber ) ) );
+				xmlPsm.setScanNumber( new BigInteger( String.valueOf( psm.getScanNumber() ) ) );
 				xmlPsm.setPrecursorCharge( new BigInteger( String.valueOf( psm.getCharge() ) ) );
 
 				// add in the filterable PSM annotations (e.g., score)
@@ -318,89 +209,56 @@ public class XMLBuilder {
 					FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
 					xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add( xmlFilterablePsmAnnotation );
 
-					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.TIDE_ANNOTATION_TYPE_DELTACN );
-					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_TIDE );
-					xmlFilterablePsmAnnotation.setValue( psm.getDeltaCn() );
+					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_AVG_FRAG_MASS_SHIFT );
+					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PFIND );
+					xmlFilterablePsmAnnotation.setValue( psm.getAvgFragMassShift());
 				}
+
 				{
 					FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
 					xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add( xmlFilterablePsmAnnotation );
 
-					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.TIDE_ANNOTATION_TYPE_DELTALCN );
-					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_TIDE );
-					xmlFilterablePsmAnnotation.setValue( psm.getDeltaLCn() );
+					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_FINAL_SCORE );
+					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PFIND );
+					xmlFilterablePsmAnnotation.setValue( psm.getFinalScore());
 				}
 
-				if(tideResults.isComputeSp()) {
-					{
-						FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
-						xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add(xmlFilterablePsmAnnotation);
-
-						xmlFilterablePsmAnnotation.setAnnotationName(PSMAnnotationTypes.TIDE_ANNOTATION_TYPE_SPRANK);
-						xmlFilterablePsmAnnotation.setSearchProgram(Constants.PROGRAM_NAME_TIDE);
-						xmlFilterablePsmAnnotation.setValue(psm.getSpRank());
-					}
-					{
-						FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
-						xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add(xmlFilterablePsmAnnotation);
-
-						xmlFilterablePsmAnnotation.setAnnotationName(PSMAnnotationTypes.TIDE_ANNOTATION_TYPE_SPSCORE);
-						xmlFilterablePsmAnnotation.setSearchProgram(Constants.PROGRAM_NAME_TIDE);
-						xmlFilterablePsmAnnotation.setValue(psm.getSpScore());
-					}
-				}
 				{
 					FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
 					xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add( xmlFilterablePsmAnnotation );
 
-					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.TIDE_ANNOTATION_TYPE_XCORR );
-					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_TIDE );
-					xmlFilterablePsmAnnotation.setValue( psm.getxCorr() );
+					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_QVALUE );
+					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PFIND );
+					xmlFilterablePsmAnnotation.setValue( psm.getqValue());
 				}
+
 				{
 					FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
 					xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add( xmlFilterablePsmAnnotation );
 
-					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.TIDE_ANNOTATION_TYPE_HIT_RANK );
-					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_TIDE );
-					xmlFilterablePsmAnnotation.setValue( BigDecimal.valueOf( psm.getHitRank() ).setScale( 0, RoundingMode.HALF_UP ) );
+					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_MASS_SHIFT );
+					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PFIND );
+					xmlFilterablePsmAnnotation.setValue( psm.getMassShift());
 				}
 
-				// handle percolator scores
-				PercolatorPSM percolatorPSM = PFindResults.getReportedPeptideResults().get( percolatorReportedPeptide ).getPercolatorPSMs().get( scanNumber );
 				{
 					FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
 					xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add( xmlFilterablePsmAnnotation );
-					
-					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.PERCOLATOR_ANNOTATION_TYPE_PEP );
-					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PERCOLATOR );
-					xmlFilterablePsmAnnotation.setValue( BigDecimal.valueOf( percolatorPSM.getPep() ) );
+
+					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_RAW_SCORE );
+					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PFIND );
+					xmlFilterablePsmAnnotation.setValue( psm.getRawScore());
 				}
+
 				{
 					FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
 					xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add( xmlFilterablePsmAnnotation );
-					
-					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.PERCOLATOR_ANNOTATION_TYPE_PVALUE );
-					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PERCOLATOR );
-					xmlFilterablePsmAnnotation.setValue( BigDecimal.valueOf( percolatorPSM.getpValue() ) );
+
+					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_SPECIFICITY );
+					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PFIND );
+					xmlFilterablePsmAnnotation.setValue( (BigDecimal.valueOf(psm.getSpecificity()).setScale(0, RoundingMode.HALF_UP) ) );
 				}
-				{
-					FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
-					xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add( xmlFilterablePsmAnnotation );
-					
-					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.PERCOLATOR_ANNOTATION_TYPE_QVALUE );
-					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PERCOLATOR );
-					xmlFilterablePsmAnnotation.setValue( BigDecimal.valueOf( percolatorPSM.getqValue() ) );
-				}
-				{
-					FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
-					xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add( xmlFilterablePsmAnnotation );
-					
-					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.PERCOLATOR_ANNOTATION_TYPE_SVMSCORE );
-					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PERCOLATOR );
-					xmlFilterablePsmAnnotation.setValue( BigDecimal.valueOf( percolatorPSM.getSvmScore() ) );
-				}
-				
+
 			}// end iterating over psms for a reported peptide
 		
 		}//end iterating over reported peptides
@@ -415,19 +273,11 @@ public class XMLBuilder {
 			ConfigurationFile xmlConfigurationFile = new ConfigurationFile();
 			xmlConfigurationFiles.getConfigurationFile().add(xmlConfigurationFile);
 
-			xmlConfigurationFile.setSearchProgram(Constants.PROGRAM_NAME_PERCOLATOR);
-			xmlConfigurationFile.setFileName(percolatorLogFile.getName());
-			xmlConfigurationFile.setFileContent(Files.readAllBytes(FileSystems.getDefault().getPath(percolatorLogFile.getAbsolutePath())));
-		}
+			File paramsFile = PFindParamsFileReader.getParamsFile(conversionParameters.getOpenPfindOutputDirectory());
 
-
-		if(tideLogFile != null && tideLogFile.exists()) {
-			ConfigurationFile xmlConfigurationFile = new ConfigurationFile();
-			xmlConfigurationFiles.getConfigurationFile().add(xmlConfigurationFile);
-
-			xmlConfigurationFile.setSearchProgram(Constants.PROGRAM_NAME_TIDE);
-			xmlConfigurationFile.setFileName(tideLogFile.getName());
-			xmlConfigurationFile.setFileContent(Files.readAllBytes(FileSystems.getDefault().getPath(tideLogFile.getAbsolutePath())));
+			xmlConfigurationFile.setSearchProgram(Constants.PROGRAM_NAME_PFIND);
+			xmlConfigurationFile.setFileName(paramsFile.getName());
+			xmlConfigurationFile.setFileContent(Files.readAllBytes(FileSystems.getDefault().getPath(paramsFile.getAbsolutePath())));
 		}
 		
 		//make the xml file
