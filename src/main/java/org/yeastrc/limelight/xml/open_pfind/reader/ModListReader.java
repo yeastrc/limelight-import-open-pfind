@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class ModListReader {
 
-    public static Map<String, BigDecimal> readModList(File pFindOutputDirectory) throws IOException {
+    public static Map<String, BigDecimal> readModList(File pFindOutputDirectory) throws Exception {
 
         Map<String, BigDecimal> modsMap = new HashMap<>();
 
@@ -30,12 +30,17 @@ public class ModListReader {
                 // we're on a line we care about, parse it
 
                 String[] fields = line.split("#");
-                assert fields.length == 2;
+                if(fields.length != 2) {
+                    throw new Exception("Got unexpected number of fields on line: " + line );
+                }
 
                 String modName = fields[0];
 
                 fields = fields[1].split("\\s+");
-                assert fields.length == 5;
+
+                if(fields.length != 5) {
+                    throw new Exception("Got unexpected number of fields on line: " + line );
+                }
 
                 BigDecimal mass = new BigDecimal(fields[2]);
 

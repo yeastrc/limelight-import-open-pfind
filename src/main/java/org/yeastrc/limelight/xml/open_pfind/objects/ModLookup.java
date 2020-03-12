@@ -17,7 +17,7 @@ public class ModLookup {
      * @param pFindOutputDirectory
      * @throws IOException
      */
-    public ModLookup(File pFindOutputDirectory) throws IOException {
+    public ModLookup(File pFindOutputDirectory) throws Exception {
         this.modsMap = ModListReader.readModList(pFindOutputDirectory);
     }
 
@@ -27,9 +27,11 @@ public class ModLookup {
      * @param name
      * @return
      */
-    public BigDecimal getModByName(String name) {
+    public BigDecimal getModByName(String name) throws Exception {
 
-        assert modsMap.containsKey(name) : "Mod wasn't found in pFind mods file";
+        if(!modsMap.containsKey(name)) {
+            throw new Exception("Mod wasn't found in pFind mods file");
+        }
 
         return modsMap.get(name);
     }

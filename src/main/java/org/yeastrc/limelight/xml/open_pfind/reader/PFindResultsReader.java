@@ -139,7 +139,7 @@ public class PFindResultsReader {
      * @return
      * @throws IOException
      */
-    private static Map<Integer, BigDecimal> getModsFromModsList(String modsList, ModLookup modLookup, Collection<String> staticMods) throws IOException {
+    private static Map<Integer, BigDecimal> getModsFromModsList(String modsList, ModLookup modLookup, Collection<String> staticMods) throws Exception {
 
         Map<Integer, BigDecimal> mods = new HashMap<>();
 
@@ -151,7 +151,9 @@ public class PFindResultsReader {
                 for(String modString : modStrings) {
                     String[] fields = modString.split(",");
 
-                    assert fields.length == 2 : "Invalid mod syntax: " + modString;
+                    if(fields.length != 2) {
+                        throw new Exception( "Invalid mod syntax: " + modString );
+                    }
 
                     if(staticMods.contains(fields[1])) {
                         continue;   // static mod, don't use it
