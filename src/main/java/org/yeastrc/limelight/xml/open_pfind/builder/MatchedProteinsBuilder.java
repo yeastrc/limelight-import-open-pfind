@@ -11,7 +11,7 @@ import org.yeastrc.limelight.limelight_import.api.xml_dto.LimelightInput;
 import org.yeastrc.limelight.limelight_import.api.xml_dto.MatchedProtein;
 import org.yeastrc.limelight.limelight_import.api.xml_dto.MatchedProteinLabel;
 import org.yeastrc.limelight.limelight_import.api.xml_dto.MatchedProteins;
-import org.yeastrc.limelight.xml.open_pfind.objects.TideReportedPeptide;
+import org.yeastrc.limelight.xml.open_pfind.objects.PFindReportedPeptide;
 import org.yeastrc.proteomics.fasta.FASTAEntry;
 import org.yeastrc.proteomics.fasta.FASTAFileParser;
 import org.yeastrc.proteomics.fasta.FASTAFileParserFactory;
@@ -43,7 +43,7 @@ public class MatchedProteinsBuilder {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, Integer> buildMatchedProteins( LimelightInput limelightInputRoot, File fastaFile, Collection<TideReportedPeptide> reportedPeptides ) throws Exception {
+	public Map<String, Integer> buildMatchedProteins( LimelightInput limelightInputRoot, File fastaFile, Collection<PFindReportedPeptide> reportedPeptides ) throws Exception {
 		
 		System.err.print( " Matching peptides to proteins..." );
 
@@ -75,11 +75,11 @@ public class MatchedProteinsBuilder {
 	 * @param reportedPeptides
 	 * @return
 	 */
-	private Collection<String> getAllProteinsFromResults( Collection<TideReportedPeptide> reportedPeptides ) {
+	private Collection<String> getAllProteinsFromResults( Collection<PFindReportedPeptide> reportedPeptides ) {
 
 		Collection<String> proteinNames = new HashSet<>();
 
-		for( TideReportedPeptide reportedPeptide : reportedPeptides ) {
+		for( PFindReportedPeptide reportedPeptide : reportedPeptides ) {
 			proteinNames.addAll( reportedPeptide.getProteinMatches());
 		}
 

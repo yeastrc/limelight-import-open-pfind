@@ -28,8 +28,8 @@ import org.yeastrc.limelight.xml.open_pfind.utils.CometParsingUtils;
 public class XMLBuilder {
 
 	public void buildAndSaveXML( ConversionParameters conversionParameters,
-			                     TideResults tideResults,
-			                     PercolatorResults percolatorResults,
+			                     PFindResults tideResults,
+			                     PFindResults PFindResults,
 								 File tideLogFile,
 								 File percolatorLogFile )
     throws Exception {
@@ -87,7 +87,7 @@ public class XMLBuilder {
 				
 			searchProgram.setName( Constants.PROGRAM_NAME_PERCOLATOR );
 			searchProgram.setDisplayName( Constants.PROGRAM_NAME_PERCOLATOR );
-			searchProgram.setVersion( percolatorResults.getPercolatorVersion() );
+			searchProgram.setVersion( PFindResults.getPercolatorVersion() );
 			
 			
 			//
@@ -195,22 +195,22 @@ public class XMLBuilder {
 		limelightInputRoot.setReportedPeptides( reportedPeptides );
 		
 		// iterate over each distinct reported peptide
-		for( String percolatorReportedPeptide : percolatorResults.getReportedPeptideResults().keySet() ) {
+		for( String percolatorReportedPeptide : PFindResults.getReportedPeptideResults().keySet() ) {
 
-			PercolatorPeptideData percolatorPeptideData = percolatorResults.getReportedPeptideResults().get( percolatorReportedPeptide );
-			TideReportedPeptide tideReportedPeptide = CometParsingUtils.getTideReportedPeptideForString( percolatorReportedPeptide, tideResults);
+			PercolatorPeptideData percolatorPeptideData = PFindResults.getReportedPeptideResults().get( percolatorReportedPeptide );
+			PFindReportedPeptide PFindReportedPeptide = CometParsingUtils.getTideReportedPeptideForString( percolatorReportedPeptide, tideResults);
 			
 			ReportedPeptide xmlReportedPeptide = new ReportedPeptide();
 			reportedPeptides.getReportedPeptide().add( xmlReportedPeptide );
 			
-			xmlReportedPeptide.setReportedPeptideString( tideReportedPeptide.getReportedPeptideString() );
-			xmlReportedPeptide.setSequence( tideReportedPeptide.getNakedPeptide() );
+			xmlReportedPeptide.setReportedPeptideString( PFindReportedPeptide.getReportedPeptideString() );
+			xmlReportedPeptide.setSequence( PFindReportedPeptide.getNakedPeptide() );
 
 			MatchedProteinsForPeptide xProteinsForPeptide = new MatchedProteinsForPeptide();
 			xmlReportedPeptide.setMatchedProteinsForPeptide( xProteinsForPeptide );
 
 			// add in protein inference info
-			for( String proteinName : tideReportedPeptide.getProteinMatches() ) {
+			for( String proteinName : PFindReportedPeptide.getProteinMatches() ) {
 
 				int matchedProteinId = proteinNameIds.get( proteinName );
 
@@ -266,23 +266,23 @@ public class XMLBuilder {
 			
 			
 			// add in the mods for this peptide
-			if( tideReportedPeptide.getMods() != null && tideReportedPeptide.getMods().keySet().size() > 0 ) {
+			if( PFindReportedPeptide.getMods() != null && PFindReportedPeptide.getMods().keySet().size() > 0 ) {
 					
 				PeptideModifications xmlModifications = new PeptideModifications();
 				xmlReportedPeptide.setPeptideModifications( xmlModifications );
 					
-				for( int position : tideReportedPeptide.getMods().keySet() ) {
+				for( int position : PFindReportedPeptide.getMods().keySet() ) {
 
 					PeptideModification xmlModification = new PeptideModification();
 					xmlModifications.getPeptideModification().add( xmlModification );
 
-					xmlModification.setMass( tideReportedPeptide.getMods().get( position ) );
+					xmlModification.setMass( PFindReportedPeptide.getMods().get( position ) );
 
-					if( CometParsingUtils.isNTerminalMod( tideReportedPeptide.getNakedPeptide(), position ) ) {
+					if( CometParsingUtils.isNTerminalMod( PFindReportedPeptide.getNakedPeptide(), position ) ) {
 
 						xmlModification.setIsNTerminal( true );
 
-					} else if( CometParsingUtils.isCTerminalMod( tideReportedPeptide.getNakedPeptide(), position ) ) {
+					} else if( CometParsingUtils.isCTerminalMod( PFindReportedPeptide.getNakedPeptide(), position ) ) {
 
 						xmlModification.setIsCTerminal( true );
 
@@ -299,9 +299,9 @@ public class XMLBuilder {
 
 			// iterate over all PSMs for this reported peptide
 
-			for( int scanNumber : percolatorResults.getReportedPeptideResults().get( percolatorReportedPeptide ).getPercolatorPSMs().keySet() ) {
+			for( int scanNumber : PFindResults.getReportedPeptideResults().get( percolatorReportedPeptide ).getPercolatorPSMs().keySet() ) {
 
-				TidePSM psm = tideResults.getPeptidePSMMap().get(tideReportedPeptide).get( scanNumber );
+				PFindPSM psm = tideResults.getPeptidePSMMap().get(PFindReportedPeptide).get( scanNumber );
 
 				Psm xmlPsm = new Psm();
 				xmlPsms.getPsm().add( xmlPsm );
@@ -367,7 +367,7 @@ public class XMLBuilder {
 				}
 
 				// handle percolator scores
-				PercolatorPSM percolatorPSM = percolatorResults.getReportedPeptideResults().get( percolatorReportedPeptide ).getPercolatorPSMs().get( scanNumber );
+				PercolatorPSM percolatorPSM = PFindResults.getReportedPeptideResults().get( percolatorReportedPeptide ).getPercolatorPSMs().get( scanNumber );
 				{
 					FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
 					xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add( xmlFilterablePsmAnnotation );

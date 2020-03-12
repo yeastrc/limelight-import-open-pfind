@@ -3,39 +3,33 @@ package org.yeastrc.limelight.xml.open_pfind.objects;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
-public class TideReportedPeptide {
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+public class PFindReportedPeptide {
+
+	@Override
+	public String toString() {
+		return "PFindReportedPeptide{" +
+				"reportedPeptideString='" + reportedPeptideString + '\'' +
+				", nakedPeptide='" + nakedPeptide + '\'' +
+				", mods=" + mods +
+				", proteinMatches=" + proteinMatches +
+				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		PFindReportedPeptide that = (PFindReportedPeptide) o;
+		return reportedPeptideString.equals(that.reportedPeptideString);
+	}
+
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((reportedPeptideString == null) ? 0 : reportedPeptideString.hashCode());
-		return result;
+		return Objects.hash(reportedPeptideString);
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof TideReportedPeptide))
-			return false;
-		TideReportedPeptide other = (TideReportedPeptide) obj;
-		if (reportedPeptideString == null) {
-			if (other.reportedPeptideString != null)
-				return false;
-		} else if (!reportedPeptideString.equals(other.reportedPeptideString))
-			return false;
-		return true;
-	}
-	
+
 	private String reportedPeptideString;
 	private String nakedPeptide;
 	private Map<Integer, BigDecimal> mods;
@@ -88,13 +82,5 @@ public class TideReportedPeptide {
 	public Collection<String> proteinMatches;
 
 
-	@Override
-	public String toString() {
-		return "CometReportedPeptide{" +
-				"reportedPeptideString='" + reportedPeptideString + '\'' +
-				", nakedPeptide='" + nakedPeptide + '\'' +
-				", mods=" + mods +
-				", proteinMatches=" + proteinMatches +
-				'}';
-	}
+
 }

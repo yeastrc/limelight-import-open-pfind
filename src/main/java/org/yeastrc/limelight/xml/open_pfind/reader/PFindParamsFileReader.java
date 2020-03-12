@@ -82,7 +82,7 @@ public class PFindParamsFileReader {
         return modStrings;
     }
 
-    public static Collection<String> getStaticcModStrings(File pFindOutputDirectory) throws IOException, ConfigurationException {
+    public static Collection<String> getStaticModStrings(File pFindOutputDirectory) throws IOException, ConfigurationException {
 
         Collection<String> modStrings = new HashSet<>();
 
