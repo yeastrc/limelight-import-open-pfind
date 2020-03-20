@@ -7,25 +7,26 @@ import org.yeastrc.limelight.xml.open_pfind.annotation.PSMAnnotationTypeSortOrde
 import org.yeastrc.limelight.xml.open_pfind.annotation.PSMAnnotationTypes;
 import org.yeastrc.limelight.xml.open_pfind.annotation.PSMDefaultVisibleAnnotationTypes;
 import org.yeastrc.limelight.xml.open_pfind.constants.Constants;
-import org.yeastrc.limelight.xml.open_pfind.objects.ConversionParameters;
-import org.yeastrc.limelight.xml.open_pfind.objects.PFindPSM;
-import org.yeastrc.limelight.xml.open_pfind.objects.PFindReportedPeptide;
-import org.yeastrc.limelight.xml.open_pfind.objects.PFindResults;
+import org.yeastrc.limelight.xml.open_pfind.objects.*;
 import org.yeastrc.limelight.xml.open_pfind.reader.PFindParamsFileReader;
 import org.yeastrc.limelight.xml.open_pfind.utils.ModUtils;
+import org.yeastrc.limelight.xml.open_pfind.utils.ReportedPeptideUtils;
 
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.util.Map;
 
 public class XMLBuilder {
 
-	public void buildAndSaveXML( ConversionParameters conversionParameters,
-			                     PFindResults results)
+	public void buildAndSaveXML(ConversionParameters conversionParameters,
+								PFindResults results,
+								TargetDecoyAnalysis tdAnalysis)
     throws Exception {
 
 		LimelightInput limelightInputRoot = new LimelightInput();
@@ -128,6 +129,11 @@ public class XMLBuilder {
 		// iterate over each distinct reported peptide
 		for( PFindReportedPeptide pFindReportedPeptide : results.getPeptidePSMMap().keySet() ) {
 
+			// skip this if it only contains decoys
+			if(ReportedPeptideUtils.reportedPeptideOnlyContainsDecoys(results, pFindReportedPeptide)) {
+				continue;
+			}
+
 			String reportedPeptideString = pFindReportedPeptide.getReportedPeptideString();
 
 			ReportedPeptide xmlReportedPeptide = new ReportedPeptide();
@@ -205,6 +211,25 @@ public class XMLBuilder {
 				xmlPsm.setFilterablePsmAnnotations( xmlFilterablePsmAnnotations );
 
 				// handle comet scores
+
+				{
+					FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
+					xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add( xmlFilterablePsmAnnotation );
+
+					xmlFilterablePsmAnnotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_CALCULATED_FDR );
+					xmlFilterablePsmAnnotation.setSearchProgram( Constants.PROGRAM_NAME_PFIND );
+
+
+					DecimalFormat formatter = new DecimalFormat("0.###E0");
+
+					double fdr = tdAnalysis.getFDRForScore( psm.getFinalScore() );
+
+					BigDecimal bd = BigDecimal.valueOf( fdr );
+					bd = bd.round( new MathContext( 3 ) );
+
+					xmlFilterablePsmAnnotation.setValue( bd );
+				}
+
 				{
 					FilterablePsmAnnotation xmlFilterablePsmAnnotation = new FilterablePsmAnnotation();
 					xmlFilterablePsmAnnotations.getFilterablePsmAnnotation().add( xmlFilterablePsmAnnotation );

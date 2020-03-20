@@ -32,7 +32,14 @@ public class PSMDefaultVisibleAnnotationTypes {
 	 */
 	public static List<SearchAnnotation> getDefaultVisibleAnnotationTypes() {
 		List<SearchAnnotation> annotations = new ArrayList<SearchAnnotation>();
-		
+
+		{
+			SearchAnnotation annotation = new SearchAnnotation();
+			annotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_CALCULATED_FDR );
+			annotation.setSearchProgram( Constants.PROGRAM_NAME_PFIND );
+			annotations.add( annotation );
+		}
+
 		{
 			SearchAnnotation annotation = new SearchAnnotation();
 			annotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_QVALUE );

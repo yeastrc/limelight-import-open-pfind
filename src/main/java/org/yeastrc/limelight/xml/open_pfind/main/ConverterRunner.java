@@ -36,8 +36,13 @@ public class ConverterRunner {
 		PFindResults results = PFindResultsReader.getPFindResults( conversionParameters.getOpenPfindOutputDirectory() );
 		System.err.println( " Found " + results.getPeptidePSMMap().keySet().size() + " distinct peptides..." );
 
+		System.err.print( "Performing FDR analysis of Final Scores..." );
+		TargetDecoyCounts tdCounts = TargetDecoyCountFactory.getTargetDecoyCountsByFinalScore( results );
+		TargetDecoyAnalysis tdAnalysis = TargetDecoyAnalysisFactory.createTargetDecoyAnalysis( tdCounts, TargetDecoyAnalysisFactory.LOWER_IS_BETTER );
+		System.err.println( " Done." );
+
 		System.err.print( "\nWriting out XML..." );
-		(new XMLBuilder()).buildAndSaveXML(conversionParameters, results);
+		(new XMLBuilder()).buildAndSaveXML(conversionParameters, results, tdAnalysis);
 		System.err.println( " Done." );
 
 	}

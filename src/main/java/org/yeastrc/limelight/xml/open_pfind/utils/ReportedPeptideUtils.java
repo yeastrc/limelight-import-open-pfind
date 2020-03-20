@@ -1,6 +1,8 @@
 package org.yeastrc.limelight.xml.open_pfind.utils;
 
+import org.yeastrc.limelight.xml.open_pfind.objects.PFindPSM;
 import org.yeastrc.limelight.xml.open_pfind.objects.PFindReportedPeptide;
+import org.yeastrc.limelight.xml.open_pfind.objects.PFindResults;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -66,6 +68,18 @@ public class ReportedPeptideUtils {
         }
 
         return sb.toString();
+    }
+
+    public static boolean reportedPeptideOnlyContainsDecoys(PFindResults pfindResults, PFindReportedPeptide pfindReportedPeptide ) {
+
+        for(PFindPSM psm : pfindResults.getPeptidePSMMap().get(pfindReportedPeptide)) {
+
+            if( !psm.isDecoy() ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }

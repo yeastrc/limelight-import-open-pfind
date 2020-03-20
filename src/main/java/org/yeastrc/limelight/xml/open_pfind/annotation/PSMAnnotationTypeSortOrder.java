@@ -10,17 +10,17 @@ public class PSMAnnotationTypeSortOrder {
 
 	public static List<SearchAnnotation> getPSMAnnotationTypeSortOrder() {
 		List<SearchAnnotation> annotations = new ArrayList<SearchAnnotation>();
-		
+
 		{
 			SearchAnnotation annotation = new SearchAnnotation();
-			annotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_QVALUE );
+			annotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_CALCULATED_FDR );
 			annotation.setSearchProgram( Constants.PROGRAM_NAME_PFIND );
 			annotations.add( annotation );
 		}
-		
+
 		{
 			SearchAnnotation annotation = new SearchAnnotation();
-			annotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_FINAL_SCORE );
+			annotation.setAnnotationName( PSMAnnotationTypes.PFIND_ANNOTATION_TYPE_QVALUE );
 			annotation.setSearchProgram( Constants.PROGRAM_NAME_PFIND );
 			annotations.add( annotation );
 		}

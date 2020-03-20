@@ -38,6 +38,7 @@ public class PSMAnnotationTypes {
 	public static final String PFIND_ANNOTATION_TYPE_AVG_FRAG_MASS_SHIFT = "avg. frag. mass shift";
 	public static final String PFIND_ANNOTATION_TYPE_SPECIFICITY = "specificity";
 
+	public static final String PFIND_ANNOTATION_TYPE_CALCULATED_FDR = "Calculated FDR";
 
 	
 	
@@ -94,6 +95,16 @@ public class PSMAnnotationTypes {
 			type.setName( PFIND_ANNOTATION_TYPE_SPECIFICITY );
 			type.setDescription( "Specificity" );
 			type.setFilterDirection( FilterDirectionType.ABOVE );
+
+			types.add( type );
+		}
+
+		{
+			FilterablePsmAnnotationType type = new FilterablePsmAnnotationType();
+			type.setName( PFIND_ANNOTATION_TYPE_CALCULATED_FDR );
+			type.setDescription( "Calculated FDR" );
+			type.setFilterDirection( FilterDirectionType.BELOW );
+			type.setDefaultFilterValue( new BigDecimal("0.01" ));
 
 			types.add( type );
 		}

@@ -22,6 +22,8 @@ public class PFindPSM {
 	private Map<Integer,BigDecimal> modifications;
 	private Collection<String> proteinNames;
 
+	private boolean isDecoy;
+
 	@Override
 	public String toString() {
 		return "PFindPSM{" +
@@ -37,7 +39,16 @@ public class PFindPSM {
 				", peptideSequence='" + peptideSequence + '\'' +
 				", modifications=" + modifications +
 				", proteinNames=" + proteinNames +
+				", isDecoy=" + isDecoy +
 				'}';
+	}
+
+	public boolean isDecoy() {
+		return isDecoy;
+	}
+
+	public void setDecoy(boolean decoy) {
+		isDecoy = decoy;
 	}
 
 	@Override

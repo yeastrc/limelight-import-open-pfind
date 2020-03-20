@@ -60,8 +60,8 @@ public class PFindResultsReader {
                     throw new Exception("Got invalid number of fields for PSM on line: " + line);
 
                 // NO DECOYS!
-                if(fields[15].equals( "decoy"))
-                    continue;
+//                if(fields[15].equals( "decoy"))
+//                    continue;
 
                 //String fileName = fields[0];
                 int scanNumber = Integer.parseInt(fields[1]);
@@ -76,6 +76,11 @@ public class PFindResultsReader {
                 int specificity = Integer.parseInt(fields[11]);
                 String proteinList = fields[12];
                 BigDecimal avgFragMassShift = new BigDecimal(fields[17]);
+
+                boolean isDecoy = false;
+                if(fields[15].equals( "decoy")) {
+                    isDecoy = true;
+                }
 
                 Map<Integer, BigDecimal> dynamicMods = getModsFromModsList(modsList, modLookup, staticMods);
 
@@ -101,6 +106,7 @@ public class PFindResultsReader {
                 psm.setScanNumber( scanNumber );
                 psm.setSpecificity( specificity );
                 psm.setProteinNames( proteinMatches );
+                psm.setDecoy(isDecoy);
 
                 results.get(reportedPeptide).add( psm );
 
