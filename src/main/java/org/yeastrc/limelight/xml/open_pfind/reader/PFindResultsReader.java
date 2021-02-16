@@ -1,6 +1,5 @@
 package org.yeastrc.limelight.xml.open_pfind.reader;
 
-import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.yeastrc.limelight.xml.open_pfind.objects.ModLookup;
 import org.yeastrc.limelight.xml.open_pfind.objects.PFindPSM;
