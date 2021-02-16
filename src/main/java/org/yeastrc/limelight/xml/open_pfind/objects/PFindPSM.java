@@ -15,7 +15,7 @@ public class PFindPSM {
 	private int specificity;
 
 	private int scanNumber;
-	private BigDecimal precursorNeutralMass;
+	private BigDecimal precursorMHPlus;
 	private int charge;
 
 	private String peptideSequence;
@@ -34,7 +34,7 @@ public class PFindPSM {
 				", avgFragMassShift=" + avgFragMassShift +
 				", specificity=" + specificity +
 				", scanNumber=" + scanNumber +
-				", precursorNeutralMass=" + precursorNeutralMass +
+				", precursorMHPlus=" + precursorMHPlus +
 				", charge=" + charge +
 				", peptideSequence='" + peptideSequence + '\'' +
 				", modifications=" + modifications +
@@ -58,13 +58,13 @@ public class PFindPSM {
 		PFindPSM pFindPSM = (PFindPSM) o;
 		return scanNumber == pFindPSM.scanNumber &&
 				charge == pFindPSM.charge &&
-				precursorNeutralMass.equals(pFindPSM.precursorNeutralMass) &&
+				precursorMHPlus.equals(pFindPSM.precursorMHPlus) &&
 				peptideSequence.equals(pFindPSM.peptideSequence);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(scanNumber, precursorNeutralMass, charge, peptideSequence);
+		return Objects.hash(scanNumber, precursorMHPlus, charge, peptideSequence);
 	}
 
 	public BigDecimal getqValue() {
@@ -123,12 +123,12 @@ public class PFindPSM {
 		this.scanNumber = scanNumber;
 	}
 
-	public BigDecimal getPrecursorNeutralMass() {
-		return precursorNeutralMass;
+	public BigDecimal getPrecursorMHPlus() {
+		return precursorMHPlus;
 	}
 
-	public void setPrecursorNeutralMass(BigDecimal precursorNeutralMass) {
-		this.precursorNeutralMass = precursorNeutralMass;
+	public void setPrecursorMHPlus(BigDecimal precursorMHPlus) {
+		this.precursorMHPlus = precursorMHPlus;
 	}
 
 	public int getCharge() {

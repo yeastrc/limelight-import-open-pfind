@@ -99,7 +99,7 @@ public class PFindResultsReader {
                 psm.setMassShift( massShift );
                 psm.setModifications( dynamicMods );
                 psm.setPeptideSequence( peptideSequence );
-                psm.setPrecursorNeutralMass( precursorMass );
+                psm.setPrecursorMHPlus( precursorMass );
                 psm.setqValue( qValue );
                 psm.setRawScore( rawScore );
                 psm.setScanNumber( scanNumber );

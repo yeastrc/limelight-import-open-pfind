@@ -9,6 +9,7 @@ import org.yeastrc.limelight.xml.open_pfind.annotation.PSMDefaultVisibleAnnotati
 import org.yeastrc.limelight.xml.open_pfind.constants.Constants;
 import org.yeastrc.limelight.xml.open_pfind.objects.*;
 import org.yeastrc.limelight.xml.open_pfind.reader.PFindParamsFileReader;
+import org.yeastrc.limelight.xml.open_pfind.utils.MassUtils;
 import org.yeastrc.limelight.xml.open_pfind.utils.ModUtils;
 import org.yeastrc.limelight.xml.open_pfind.utils.ReportedPeptideUtils;
 
@@ -205,6 +206,7 @@ public class XMLBuilder {
 
 				xmlPsm.setScanNumber( new BigInteger( String.valueOf( psm.getScanNumber() ) ) );
 				xmlPsm.setPrecursorCharge( new BigInteger( String.valueOf( psm.getCharge() ) ) );
+				xmlPsm.setPrecursorMZ(MassUtils.getObservedMoverZForPsm(psm));
 
 				// add in the filterable PSM annotations (e.g., score)
 				FilterablePsmAnnotations xmlFilterablePsmAnnotations = new FilterablePsmAnnotations();
